@@ -1,7 +1,7 @@
 package ru.livetex.sdkui;
 
 public interface Const {
-	String TOUCHPOINT = "168:58dc121d-9b8f-4d31-b142-7b11de675690";
+	String TOUCHPOINT = "279888:ee57ea5b-31c0-4e26-aef9-942adb518a9d";
 
 	String KEY_VISITOR_TOKEN = "KEY_VISITOR_TOKEN";
 
