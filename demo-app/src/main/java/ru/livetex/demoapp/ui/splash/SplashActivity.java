@@ -17,7 +17,7 @@ public class SplashActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.a_splash);
-		Disposable d = App.getInstance().init()
+		Disposable disposable = App.getInstance().init()
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(() -> {
