@@ -33,14 +33,14 @@ public class App extends Application {
             FirebaseInstanceId.getInstance().getInstanceId()
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            Log.w(TAG, "zavanton - getInstanceId failed", task.getException());
                             initLiveTex();
                             emitter.onComplete();
                             return;
                         }
 
                         String token = task.getResult().getToken();
-                        Log.i(TAG, "firebase token = " + token);
+                        Log.i(TAG, "zavanton - firebase token = " + token);
 
                         initLiveTex();
                         emitter.onComplete();
@@ -49,8 +49,10 @@ public class App extends Application {
     }
 
     private void initLiveTex() {
+        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "zavanton - deviceToken: " + deviceToken);
         new LiveTex.Builder(Const.TOUCHPOINT)
-                .setDeviceToken(FirebaseInstanceId.getInstance().getToken())
+                .setDeviceToken(deviceToken)
                 .build();
     }
 }

@@ -4,7 +4,7 @@
 
     <application
         android:name="ru.livetex.demoapp.App"
-		android:allowBackup="false"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
