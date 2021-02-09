@@ -48,6 +48,9 @@ class ChatViewModel(// todo zavanton - replace by room
 
     fun addViewState(state: IChatbotView) {
         viewState = state
+
+        // todo zavanton - move to some other method
+        subscribe()
     }
 
     // File for upload
@@ -64,10 +67,6 @@ class ChatViewModel(// todo zavanton - replace by room
                 viewState.updateViewState(ChatViewState.QUOTE)
             }
         }
-
-    init {
-        subscribe()
-    }
 
     override fun onCleared() {
         super.onCleared()
@@ -89,8 +88,10 @@ class ChatViewModel(// todo zavanton - replace by room
         disposables.add(messagesHandler.departmentRequest()
                 .observeOn(Schedulers.io())
                 .subscribe({ departmentRequestEntity: DepartmentRequestEntity -> onDepartmentsRequest(departmentRequestEntity) }) { thr: Throwable? -> Log.e(TAG, "departmentRequest", thr) })
+
         disposables.add(messagesHandler.attributesRequest()
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ attributesRequest: AttributesRequest? ->
                     // Это лишь пример реализации того, как собрать и отправить аттрибуты.
                     // Важно только ответить на attributesRequest посылкой обязательных (если есть) аттрибутов.
@@ -98,6 +99,7 @@ class ChatViewModel(// todo zavanton - replace by room
                     myViewState = ChatViewState.ATTRIBUTES
                     viewState.updateViewState(ChatViewState.ATTRIBUTES)
                 }) { thr: Throwable? -> Log.e(TAG, "", thr) })
+
         disposables.add(messagesHandler.dialogStateUpdate()
                 .observeOn(Schedulers.io())
                 .subscribe({ state: DialogState ->
@@ -317,10 +319,15 @@ class ChatViewModel(// todo zavanton - replace by room
 
     fun onResume() {
         val visitorToken = sp.getString(Const.KEY_VISITOR_TOKEN, null)
+        Log.d("zavanton", "zavanton - initial token: $visitorToken")
+
         disposables.add(networkManager.connect(visitorToken, AuthTokenType.DEFAULT)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe({ visitorTokenReceived: String? -> sp.edit().putString(Const.KEY_VISITOR_TOKEN, visitorTokenReceived).apply() }) { e: Throwable ->
+                .subscribe({ visitorTokenReceived: String? ->
+                    Log.d("zavanton", "zavanton - visitor token: $visitorTokenReceived")
+                    sp.edit().putString(Const.KEY_VISITOR_TOKEN, visitorTokenReceived).apply()
+                }) { e: Throwable ->
                     Log.e(TAG, "connect", e)
                     viewState.onError("Ошибка соединения " + e.message)
                 })
