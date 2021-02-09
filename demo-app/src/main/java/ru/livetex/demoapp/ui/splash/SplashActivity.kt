@@ -8,7 +8,7 @@ import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import ru.livetex.demoapp.App
 import ru.livetex.demoapp.R
-import ru.livetex.sdkui.chat.ChatbotActivity
+import ru.livetex.sdkui.chat.ui.ChatbotActivity
 
 class SplashActivity : MvpAppCompatActivity(), ISplashView {
 

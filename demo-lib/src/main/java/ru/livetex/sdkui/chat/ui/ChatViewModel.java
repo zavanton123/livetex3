@@ -1,4 +1,4 @@
-package ru.livetex.sdkui.chat;
+package ru.livetex.sdkui.chat.ui;
 
 import android.content.Context;
 import android.content.SharedPreferences;

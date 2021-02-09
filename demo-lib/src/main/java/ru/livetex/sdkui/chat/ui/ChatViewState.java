@@ -1,4 +1,4 @@
-package ru.livetex.sdkui.chat;
+package ru.livetex.sdkui.chat.ui;
 
 enum ChatViewState {
 	// Normal UI with visible input

@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 import ru.livetex.demoapp.BuildConfig;
 import ru.livetex.demoapp.R;
-import ru.livetex.sdkui.chat.ChatbotActivity;
+import ru.livetex.sdkui.chat.ui.ChatbotActivity;
 
 public final class FbMessagingService extends FirebaseMessagingService {
 

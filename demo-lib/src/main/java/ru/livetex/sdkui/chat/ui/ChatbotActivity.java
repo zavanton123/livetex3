@@ -1,4 +1,4 @@
-package ru.livetex.sdkui.chat;
+package ru.livetex.sdkui.chat.ui;
 
 import android.Manifest;
 import android.app.Activity;
@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -48,6 +47,9 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
+import moxy.MvpAppCompatActivity;
+import moxy.presenter.InjectPresenter;
+import moxy.presenter.ProvidePresenter;
 import ru.livetex.sdk.entity.Department;
 import ru.livetex.sdk.entity.DialogState;
 import ru.livetex.sdk.network.NetworkManager;
@@ -71,7 +73,15 @@ import ru.livetex.sdkui.utils.IntentUtils;
 import ru.livetex.sdkui.utils.RecyclerViewScrollListener;
 import ru.livetex.sdkui.utils.TextWatcherAdapter;
 
-public class ChatbotActivity extends AppCompatActivity {
+public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotView {
+
+    @InjectPresenter
+    ChatbotPresenter presenter;
+
+    @ProvidePresenter
+    ChatbotPresenter providePresenter() {
+        return new ChatbotPresenter();
+    }
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE_STORAGE = 2000;
@@ -597,5 +607,10 @@ public class ChatbotActivity extends AppCompatActivity {
             addFileDialog = null;
         }
         getLifecycle().removeObserver(lifecycleObserver);
+    }
+
+    @Override
+    public void logEvent() {
+        Log.d("zavanton", "zavanton - logEvent is called");
     }
 }
