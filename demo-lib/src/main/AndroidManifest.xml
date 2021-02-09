@@ -1,45 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="ru.livetex.sdkui">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ru.livetex.sdkui"
+    >
 
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-	<application
-		android:requestLegacyExternalStorage="true">
+    <application android:requestLegacyExternalStorage="true">
 
-		<activity
-			android:name=".chat.ChatActivity"
-			android:exported="true"
-			android:screenOrientation="portrait"/>
+        <activity
+            android:name=".chat.ChatbotActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            />
 
-		<activity android:name=".chat.image.ImageActivity" />
+        <activity android:name=".chat.image.ImageActivity" />
 
-		<!-- 3rd party -->
-		<activity
-			android:name="com.yalantis.ucrop.UCropActivity"
-			android:screenOrientation="portrait"
-			android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <!--        todo zavanton - remove it -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            />
 
-		<provider
-			android:name="androidx.core.content.FileProvider"
-			android:authorities="${applicationId}.provider"
-			android:exported="false"
-			android:grantUriPermissions="true">
-			<meta-data
-				android:name="android.support.FILE_PROVIDER_PATHS"
-				android:resource="@xml/provider_paths" />
-		</provider>
-	</application>
-	<queries>
-		<!-- Camera and Gallery -->
-		<intent>
-			<action android:name="android.media.action.IMAGE_CAPTURE" />
-		</intent>
-		<intent>
-			<action android:name="android.intent.action.GET_CONTENT" />
-			<data android:mimeType="*/*" />
-		</intent>
-	</queries>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"
+                />
+        </provider>
+    </application>
+
+    <!--    todo zavanton - remove it??? -->
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
 </manifest>

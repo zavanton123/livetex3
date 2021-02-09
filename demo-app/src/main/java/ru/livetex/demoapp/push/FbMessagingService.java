@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 import ru.livetex.demoapp.BuildConfig;
 import ru.livetex.demoapp.R;
-import ru.livetex.sdkui.chat.ChatActivity;
+import ru.livetex.sdkui.chat.ChatbotActivity;
 
 public final class FbMessagingService extends FirebaseMessagingService {
 
@@ -72,7 +72,7 @@ public final class FbMessagingService extends FirebaseMessagingService {
 		String messageText = remoteMessage.getNotification().getBody();
 
 		// Open ChatActivity on click
-		Intent resultIntent = new Intent(this, ChatActivity.class);
+		Intent resultIntent = new Intent(this, ChatbotActivity.class);
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		stackBuilder.addNextIntentWithParentStack(resultIntent);
 		PendingIntent resultPendingIntent =

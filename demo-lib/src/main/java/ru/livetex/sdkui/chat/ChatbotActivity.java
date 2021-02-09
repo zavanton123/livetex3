@@ -71,7 +71,8 @@ import ru.livetex.sdkui.utils.IntentUtils;
 import ru.livetex.sdkui.utils.RecyclerViewScrollListener;
 import ru.livetex.sdkui.utils.TextWatcherAdapter;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatbotActivity extends AppCompatActivity {
+
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE_STORAGE = 2000;
 

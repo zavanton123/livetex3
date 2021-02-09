@@ -8,7 +8,7 @@ import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import ru.livetex.demoapp.App
 import ru.livetex.demoapp.R
-import ru.livetex.sdkui.chat.ChatActivity
+import ru.livetex.sdkui.chat.ChatbotActivity
 
 class SplashActivity : MvpAppCompatActivity(), ISplashView {
 
@@ -26,7 +26,7 @@ class SplashActivity : MvpAppCompatActivity(), ISplashView {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    startActivity(Intent(this, ChatActivity::class.java))
+                    startActivity(Intent(this, ChatbotActivity::class.java))
                     finish()
                     overridePendingTransition(0, android.R.anim.fade_out)
                 }
