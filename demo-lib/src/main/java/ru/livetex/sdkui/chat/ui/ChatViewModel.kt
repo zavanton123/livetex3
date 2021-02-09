@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Completable
@@ -36,21 +35,15 @@ class ChatViewModel(// todo zavanton - replace by room
 
     private val messagesHandler = LiveTex.getInstance().messagesHandler
     private val networkManager = LiveTex.getInstance().networkManager
-    @JvmField
-	val connectionStateLiveData = MutableLiveData<ConnectionState>()
-    @JvmField
-	val departmentsLiveData = MutableLiveData<List<Department>>()
-    @JvmField
-	val dialogStateUpdateLiveData = MutableLiveData<DialogState?>()
-	internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
-    @JvmField
-	val errorLiveData = MutableLiveData<String?>()
+    val connectionStateLiveData = MutableLiveData<ConnectionState>()
+    val departmentsLiveData = MutableLiveData<List<Department>>()
+    val dialogStateUpdateLiveData = MutableLiveData<DialogState?>()
+    internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
+    val errorLiveData = MutableLiveData<String?>()
 
     // File for upload
-	@JvmField
-	var selectedFile: Uri? = null
-    @JvmField
-	var inputEnabled = true
+    var selectedFile: Uri? = null
+    var inputEnabled = true
     var quoteText: String? = null
         set(quoteText) {
             field = quoteText
