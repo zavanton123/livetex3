@@ -229,7 +229,6 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
     private fun subscribeViewModel() {
         viewModel!!.myViewStateLiveData.observe(this, Observer { viewState: ChatViewState? -> setViewState(viewState) })
-        viewModel!!.departmentsLiveData.observe(this, Observer { departments: List<Department> -> showDepartments(departments) })
     }
 
     private fun setMessages(chatMessages: List<ChatMessage>) {
@@ -402,7 +401,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         }
     }
 
-    private fun showDepartments(departments: List<Department>) {
+    override fun showDepartments(departments: List<Department>) {
         binding!!.departmentsButtonContainerView.removeAllViews()
         for (department in departments) {
             val view = View.inflate(this, R.layout.l_department_button, null) as MaterialButton

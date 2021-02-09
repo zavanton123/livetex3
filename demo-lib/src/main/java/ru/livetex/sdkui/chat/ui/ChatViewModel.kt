@@ -42,7 +42,6 @@ class ChatViewModel(// todo zavanton - replace by room
 
     var dialogState: DialogState? = null
 
-    val departmentsLiveData = MutableLiveData<List<Department>>()
     internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
 
     fun addViewState(state: IChatbotView) {
@@ -134,7 +133,7 @@ class ChatViewModel(// todo zavanton - replace by room
             selectDepartment(departments[0])
             return
         }
-        departmentsLiveData.postValue(departments)
+        viewState.showDepartments(departments)
         myViewStateLiveData.postValue(ChatViewState.DEPARTMENTS)
     }
 
