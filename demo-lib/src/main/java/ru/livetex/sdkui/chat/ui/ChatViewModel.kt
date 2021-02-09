@@ -30,6 +30,10 @@ import java.util.concurrent.TimeUnit
 class ChatViewModel(// todo zavanton - replace by room
         private val sp: SharedPreferences) : ViewModel() {
 
+    companion object {
+        private const val TAG = "ChatViewModel"
+    }
+
     // todo zavanton - remove
     lateinit var viewState: IChatbotView
 
@@ -40,12 +44,11 @@ class ChatViewModel(// todo zavanton - replace by room
     private val networkManager = LiveTex.getInstance().networkManager
 
     var dialogState: DialogState? = null
-    internal var myViewState: ChatViewState = ChatViewState.NORMAL
+    var myViewState: ChatViewState = ChatViewState.NORMAL
 
     fun addViewState(state: IChatbotView) {
         viewState = state
     }
-
 
     // File for upload
     var selectedFile: Uri? = null
@@ -61,6 +64,10 @@ class ChatViewModel(// todo zavanton - replace by room
                 viewState.updateViewState(ChatViewState.QUOTE)
             }
         }
+
+    init {
+        subscribe()
+    }
 
     override fun onCleared() {
         super.onCleared()
@@ -333,11 +340,4 @@ class ChatViewModel(// todo zavanton - replace by room
         viewState.updateViewState(ChatViewState.NORMAL)
     }
 
-    companion object {
-        private const val TAG = "ChatViewModel"
-    }
-
-    init {
-        subscribe()
-    }
 }

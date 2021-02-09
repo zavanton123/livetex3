@@ -65,7 +65,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         return ChatbotPresenter()
     }
 
-    var binding: AChatBinding? = null
+    private lateinit var binding: AChatBinding
     private val disposables = CompositeDisposable()
 
     // todo zavanton - remove
@@ -116,16 +116,16 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 IntentUtils.goUrl(this, fileUrl)
             }
         }
-        binding!!.messagesView.adapter = adapter
+        binding.messagesView.adapter = adapter
         //		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(messagesView.getContext(),
 //				DividerItemDecoration.VERTICAL);
 //		dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
 //		messagesView.addItemDecoration(dividerItemDecoration);
-        (binding!!.messagesView.itemAnimator as SimpleItemAnimator?)!!.supportsChangeAnimations = false
+        (binding.messagesView.itemAnimator as SimpleItemAnimator?)!!.supportsChangeAnimations = false
         disposables.add(ChatState.instance.messages()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ chatMessages: List<ChatMessage> -> setMessages(chatMessages) }) { thr: Throwable? -> Log.e(TAG, "messages observe", thr) })
-        binding!!.messagesView.addOnScrollListener(object : RecyclerViewScrollListener(binding!!.messagesView.layoutManager as LinearLayoutManager?) {
+        binding.messagesView.addOnScrollListener(object : RecyclerViewScrollListener(binding.messagesView.layoutManager as LinearLayoutManager?) {
             override fun onLoadRequest() {
                 var firstMessageId: String? = null
                 for (adapterItem in adapter.data) {
@@ -144,17 +144,17 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             override fun onScrollDown() {}
         })
         val feedbackClickListener = View.OnClickListener { v: View ->
-            binding!!.feedbackContainerView.postDelayed({ binding!!.feedbackContainerView.visibility = View.GONE }, 250)
+            binding.feedbackContainerView.postDelayed({ binding.feedbackContainerView.visibility = View.GONE }, 250)
             viewModel.sendFeedback(v.id == R.id.feedbackPositiveView)
         }
-        binding!!.feedbackPositiveView.setOnClickListener(feedbackClickListener)
-        binding!!.feedbackNegativeView.setOnClickListener(feedbackClickListener)
-        binding!!.quoteCloseView.setOnClickListener { v: View? -> viewModel.quoteText = null }
+        binding.feedbackPositiveView.setOnClickListener(feedbackClickListener)
+        binding.feedbackNegativeView.setOnClickListener(feedbackClickListener)
+        binding.quoteCloseView.setOnClickListener { v: View? -> viewModel.quoteText = null }
     }
 
     private fun setupInput() {
         // --- Chat input
-        binding!!.sendView.setOnClickListener { v: View? ->
+        binding.sendView.setOnClickListener { v: View? ->
             if (!viewModel.inputEnabled) {
                 Toast.makeText(this, "Отправка сейчас недоступна", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -169,14 +169,14 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 sendMessage()
             }
         }
-        binding!!.inputView.setOnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
+        binding.inputView.setOnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 sendMessage()
                 return@setOnEditorActionListener true
             }
             false
         }
-        binding!!.addView.setOnClickListener { v: View? ->
+        binding.addView.setOnClickListener { v: View? ->
             if (!viewModel.inputEnabled) {
                 Toast.makeText(this, "Отправка файлов сейчас недоступна", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -197,27 +197,27 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 .observeOn(Schedulers.io())
                 .subscribe({ message: String? -> viewModel.sendTypingEvent(message!!) }) { thr: Throwable? -> Log.e(TAG, "typing observe", thr) }
         disposables.add(disposable)
-        binding!!.inputView.addTextChangedListener(object : TextWatcherAdapter() {
+        binding.inputView.addTextChangedListener(object : TextWatcherAdapter() {
             override fun afterTextChanged(editable: Editable) {
                 // notify about typing
                 textSubject.onNext(editable.toString())
             }
         })
-        binding!!.filePreviewDeleteView.setOnClickListener { v: View? ->
+        binding.filePreviewDeleteView.setOnClickListener { v: View? ->
             viewModel.selectedFile = null
             viewModel.onFilePreviewDeleteViewClick()
         }
 
         // --- Attributes
-        binding!!.attributesSendView.setOnClickListener { v: View? ->
-            val name = binding!!.attributesNameView.text.toString().trim { it <= ' ' }
-            val phone = binding!!.attributesPhoneView.text.toString().trim { it <= ' ' }
-            val email = binding!!.attributesEmailView.text.toString().trim { it <= ' ' }
+        binding.attributesSendView.setOnClickListener { v: View? ->
+            val name = binding.attributesNameView.text.toString().trim { it <= ' ' }
+            val phone = binding.attributesPhoneView.text.toString().trim { it <= ' ' }
+            val email = binding.attributesEmailView.text.toString().trim { it <= ' ' }
 
             // Check for required fields. In demo only name is required, in real app depends on your configs.
             if (TextUtils.isEmpty(name)) {
-                binding!!.attributesNameView.error = "Заполните поле"
-                binding!!.attributesNameView.requestFocus()
+                binding.attributesNameView.error = "Заполните поле"
+                binding.attributesNameView.requestFocus()
                 return@setOnClickListener
             }
             InputUtils.hideKeyboard(this)
@@ -228,7 +228,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     private fun setMessages(chatMessages: List<ChatMessage>) {
         val items: MutableList<AdapterItem> = ArrayList()
         val days: MutableList<String> = ArrayList()
-        val layoutManager = binding!!.messagesView.layoutManager as LinearLayoutManager?
+        val layoutManager = binding.messagesView.layoutManager as LinearLayoutManager?
         val isLastMessageVisible = adapter.itemCount > 0 && layoutManager!!.findLastVisibleItemPosition() == adapter.itemCount - 1
         for (chatMessage in chatMessages) {
             val dayDate = DateUtils.dateToDay(chatMessage.createdAt)
@@ -248,7 +248,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         diffResult.dispatchUpdatesTo(adapter)
         if (isLastMessageVisible && adapter.itemCount > 0) {
             // post() allows to scroll when child layout phase is done and sizes are proper.
-            binding!!.messagesView.post { binding!!.messagesView.smoothScrollToPosition(adapter.itemCount) }
+            binding.messagesView.post { binding.messagesView.smoothScrollToPosition(adapter.itemCount) }
         }
     }
 
@@ -330,27 +330,27 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
     override fun updateViewState(viewState: ChatViewState) {
         // Set default state at first
-        binding!!.inputFieldContainerView.setBackgroundResource(if (viewModel.inputEnabled) 0 else R.drawable.bg_input_field_container_disabled)
-        binding!!.inputView.isEnabled = viewModel.inputEnabled
-        binding!!.addView.isEnabled = viewModel.inputEnabled
-        binding!!.sendView.isEnabled = viewModel.inputEnabled
-        binding!!.quoteContainerView.visibility = View.GONE
-        binding!!.filePreviewView.visibility = View.GONE
-        binding!!.filePreviewDeleteView.visibility = View.GONE
-        binding!!.fileNameView.visibility = View.GONE
+        binding.inputFieldContainerView.setBackgroundResource(if (viewModel.inputEnabled) 0 else R.drawable.bg_input_field_container_disabled)
+        binding.inputView.isEnabled = viewModel.inputEnabled
+        binding.addView.isEnabled = viewModel.inputEnabled
+        binding.sendView.isEnabled = viewModel.inputEnabled
+        binding.quoteContainerView.visibility = View.GONE
+        binding.filePreviewView.visibility = View.GONE
+        binding.filePreviewDeleteView.visibility = View.GONE
+        binding.fileNameView.visibility = View.GONE
         when (viewState) {
             ChatViewState.NORMAL -> {
-                binding!!.inputContainerView.visibility = View.VISIBLE
-                binding!!.attributesContainerView.visibility = View.GONE
-                binding!!.departmentsContainerView.visibility = View.GONE
+                binding.inputContainerView.visibility = View.VISIBLE
+                binding.attributesContainerView.visibility = View.GONE
+                binding.departmentsContainerView.visibility = View.GONE
             }
             ChatViewState.SEND_FILE_PREVIEW -> {
                 // gray background
-                binding!!.inputFieldContainerView.setBackgroundResource(R.drawable.bg_input_field_container_disabled)
-                binding!!.inputView.isEnabled = false
+                binding.inputFieldContainerView.setBackgroundResource(R.drawable.bg_input_field_container_disabled)
+                binding.inputView.isEnabled = false
                 // file preview img
-                binding!!.filePreviewView.visibility = View.VISIBLE
-                binding!!.filePreviewDeleteView.visibility = View.VISIBLE
+                binding.filePreviewView.visibility = View.VISIBLE
+                binding.filePreviewDeleteView.visibility = View.VISIBLE
                 val mime = FileUtils.getMimeType(this, viewModel.selectedFile)
                 if (mime.contains("image")) {
                     Glide.with(this)
@@ -359,45 +359,45 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                             .error(R.drawable.placeholder)
                             .dontAnimate()
                             .transform(CenterCrop(), RoundedCorners(resources.getDimensionPixelOffset(R.dimen.chat_upload_preview_corner_radius)))
-                            .into(binding!!.filePreviewView)
+                            .into(binding.filePreviewView)
                 } else {
                     Glide.with(this)
                             .load(R.drawable.doc_big)
                             .dontAnimate()
                             .transform(CenterCrop(), RoundedCorners(resources.getDimensionPixelOffset(R.dimen.chat_upload_preview_corner_radius)))
-                            .into(binding!!.filePreviewView)
+                            .into(binding.filePreviewView)
                     val filename = FileUtils.getFilename(this, viewModel.selectedFile)
-                    binding!!.fileNameView.visibility = View.VISIBLE
-                    binding!!.fileNameView.text = filename
+                    binding.fileNameView.visibility = View.VISIBLE
+                    binding.fileNameView.text = filename
                 }
             }
             ChatViewState.QUOTE -> {
-                binding!!.quoteContainerView.visibility = View.VISIBLE
-                binding!!.quoteView.text = viewModel.quoteText
+                binding.quoteContainerView.visibility = View.VISIBLE
+                binding.quoteView.text = viewModel.quoteText
             }
             ChatViewState.ATTRIBUTES -> {
                 InputUtils.hideKeyboard(this)
-                binding!!.inputView.clearFocus()
-                binding!!.inputContainerView.visibility = View.GONE
-                binding!!.attributesContainerView.visibility = View.VISIBLE
+                binding.inputView.clearFocus()
+                binding.inputContainerView.visibility = View.GONE
+                binding.attributesContainerView.visibility = View.VISIBLE
             }
             ChatViewState.DEPARTMENTS -> {
                 InputUtils.hideKeyboard(this)
-                binding!!.inputView.clearFocus()
-                binding!!.inputContainerView.visibility = View.GONE
-                binding!!.attributesContainerView.visibility = View.GONE
-                binding!!.departmentsContainerView.visibility = View.VISIBLE
+                binding.inputView.clearFocus()
+                binding.inputContainerView.visibility = View.GONE
+                binding.attributesContainerView.visibility = View.GONE
+                binding.departmentsContainerView.visibility = View.VISIBLE
             }
         }
     }
 
     override fun showDepartments(departments: List<Department>) {
-        binding!!.departmentsButtonContainerView.removeAllViews()
+        binding.departmentsButtonContainerView.removeAllViews()
         for (department in departments) {
             val view = View.inflate(this, R.layout.l_department_button, null) as MaterialButton
             view.text = department.name
             view.setOnClickListener { v: View? -> viewModel.selectDepartment(department) }
-            binding!!.departmentsButtonContainerView.addView(view)
+            binding.departmentsButtonContainerView.addView(view)
         }
     }
 
@@ -408,7 +408,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     }
 
     private fun sendMessage() {
-        val text = binding!!.inputView.text.toString().trim { it <= ' ' }
+        val text = binding.inputView.text.toString().trim { it <= ' ' }
         if (TextUtils.isEmpty(text)) {
             Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show()
             return
@@ -418,10 +418,10 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             return
         }
         val chatMessage = ChatState.instance.createNewTextMessage(text, viewModel.quoteText)
-        binding!!.inputView.text = null
+        binding.inputView.text = null
 
         // wait a bit and scroll to newly created user message
-        binding!!.inputView.postDelayed({ binding!!.messagesView.smoothScrollToPosition(adapter.itemCount - 1) }, 200)
+        binding.inputView.postDelayed({ binding.messagesView.smoothScrollToPosition(adapter.itemCount - 1) }, 200)
         viewModel.quoteText = null
         viewModel.sendMessage(chatMessage)
     }
@@ -432,7 +432,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     override fun updateDialogState(dialogState: DialogState?) {
         if (dialogState != null) {
             val shouldShowFeedback = dialogState.employee != null && dialogState.employee!!.rating == null
-            binding!!.feedbackContainerView.visibility = if (shouldShowFeedback) View.VISIBLE else View.GONE
+            binding.feedbackContainerView.visibility = if (shouldShowFeedback) View.VISIBLE else View.GONE
         }
     }
 
