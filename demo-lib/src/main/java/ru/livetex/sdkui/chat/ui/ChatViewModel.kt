@@ -1,7 +1,6 @@
 package ru.livetex.sdkui.chat.ui
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
@@ -348,5 +347,4 @@ class ChatViewModel : ViewModel() {
         myViewState = ChatViewState.NORMAL
         viewState.updateViewState(ChatViewState.NORMAL)
     }
-
 }

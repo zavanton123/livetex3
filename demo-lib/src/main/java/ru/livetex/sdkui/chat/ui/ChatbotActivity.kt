@@ -33,7 +33,7 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import moxy.MvpAppCompatActivity
-import moxy.presenter.InjectPresenter
+import moxy.ktx.moxyPresenter
 import moxy.presenter.ProvidePresenter
 import ru.livetex.sdk.entity.Department
 import ru.livetex.sdk.entity.DialogState
@@ -47,7 +47,6 @@ import ru.livetex.sdkui.chat.db.ChatState
 import ru.livetex.sdkui.chat.db.entity.ChatMessage
 import ru.livetex.sdkui.chat.db.entity.MessageSentState
 import ru.livetex.sdkui.chat.image.ImageActivity
-import ru.livetex.sdkui.chat.ui.ChatViewModel
 import ru.livetex.sdkui.databinding.AChatBinding
 import ru.livetex.sdkui.utils.*
 import java.io.File
@@ -55,7 +54,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
-
 
     companion object {
         private const val TAG = "MainActivity"
@@ -67,9 +65,9 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     }
 
     // todo zavanton - inject with dagger
-    @JvmField
-    @InjectPresenter
-    var presenter: ChatbotPresenter? = null
+    private val presenter by moxyPresenter {
+        ChatbotPresenter()
+    }
 
     @ProvidePresenter
     fun providePresenter(): ChatbotPresenter {
@@ -79,20 +77,18 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     private lateinit var binding: AChatBinding
     private val disposables = CompositeDisposable()
 
-    // todo zavanton - remove
-    private lateinit var viewModel: ChatViewModel
-    private val adapter = MessagesAdapter(Consumer { button: KeyboardEntity.Button? -> viewModel.onMessageActionButtonClicked(this, button!!) })
+    private val adapter = MessagesAdapter(Consumer { button: KeyboardEntity.Button? -> presenter.onMessageActionButtonClicked(this, button!!) })
     private var addFileDialog: AddFileDialog? = null
     private val textSubject = PublishSubject.create<String>()
 
     override fun onResume() {
         super.onResume()
-        viewModel.onResume()
+        presenter.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        viewModel.onPause()
+        presenter.onPause()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,10 +99,6 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
         binding = DataBindingUtil.setContentView(this, R.layout.a_chat)
 
-        // todo zavanton - remove
-        viewModel = ChatViewModelFactory().create(ChatViewModel::class.java)
-        viewModel.addViewState(this)
-
         setupUI()
         NetworkManager.getInstance().startObserveNetworkState(this)
     }
@@ -116,7 +108,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         adapter.setOnMessageClickListener { item: ChatItem ->
             val dialog = MessageActionsDialog(this, item.sentState == MessageSentState.FAILED)
             dialog.show()
-            dialog.attach(this, viewModel, item)
+            dialog.attach(this, presenter, item)
         }
         adapter.setOnFileClickListener { fileUrl: String ->
             // Download file or open full screen image
@@ -149,36 +141,36 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                         break
                     }
                 }
-                viewModel.loadPreviousMessages(firstMessageId, Const.PRELOAD_MESSAGES_COUNT)
+                presenter.loadPreviousMessages(firstMessageId, Const.PRELOAD_MESSAGES_COUNT)
             }
 
             override fun canLoadMore(): Boolean {
-                return viewModel.canPreloadMessages()
+                return presenter.canPreloadMessages()
             }
 
             override fun onScrollDown() {}
         })
         val feedbackClickListener = View.OnClickListener { v: View ->
             binding.feedbackContainerView.postDelayed({ binding.feedbackContainerView.visibility = View.GONE }, 250)
-            viewModel.sendFeedback(v.id == R.id.feedbackPositiveView)
+            presenter.sendFeedback(v.id == R.id.feedbackPositiveView)
         }
         binding.feedbackPositiveView.setOnClickListener(feedbackClickListener)
         binding.feedbackNegativeView.setOnClickListener(feedbackClickListener)
-        binding.quoteCloseView.setOnClickListener { v: View? -> viewModel.quoteText = null }
+        binding.quoteCloseView.setOnClickListener { v: View? -> presenter.quoteText = null }
     }
 
     private fun setupInput() {
         // --- Chat input
         binding.sendView.setOnClickListener { v: View? ->
-            if (!viewModel.inputEnabled) {
+            if (!presenter.inputEnabled) {
                 Toast.makeText(this, "Отправка сейчас недоступна", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             // Send file or message
-            if (viewModel.selectedFile != null) {
-                val path = FileUtils.getRealPathFromUri(this, viewModel.selectedFile)
+            if (presenter.selectedFile != null) {
+                val path = FileUtils.getRealPathFromUri(this, presenter.selectedFile)
                 if (path != null) {
-                    viewModel.sendFile(path)
+                    presenter.sendFile(path)
                 }
             } else {
                 sendMessage()
@@ -192,7 +184,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             false
         }
         binding.addView.setOnClickListener { v: View? ->
-            if (!viewModel.inputEnabled) {
+            if (!presenter.inputEnabled) {
                 Toast.makeText(this, "Отправка файлов сейчас недоступна", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -210,7 +202,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         val disposable = textSubject
                 .throttleLast(TEXT_TYPING_DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
-                .subscribe({ message: String? -> viewModel.sendTypingEvent(message!!) }) { thr: Throwable? -> Log.e(TAG, "typing observe", thr) }
+                .subscribe({ message: String? -> presenter.sendTypingEvent(message!!) }) { thr: Throwable? -> Log.e(TAG, "typing observe", thr) }
         disposables.add(disposable)
         binding.inputView.addTextChangedListener(object : TextWatcherAdapter() {
             override fun afterTextChanged(editable: Editable) {
@@ -219,8 +211,8 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             }
         })
         binding.filePreviewDeleteView.setOnClickListener { v: View? ->
-            viewModel.selectedFile = null
-            viewModel.onFilePreviewDeleteViewClick()
+            presenter.selectedFile = null
+            presenter.onFilePreviewDeleteViewClick()
         }
 
         // --- Attributes
@@ -236,7 +228,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 return@setOnClickListener
             }
             InputUtils.hideKeyboard(this)
-            viewModel.sendAttributes(name, phone, email)
+            presenter.sendAttributes(name, phone, email)
         }
     }
 
@@ -345,10 +337,10 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
     override fun updateViewState(viewState: ChatViewState) {
         // Set default state at first
-        binding.inputFieldContainerView.setBackgroundResource(if (viewModel.inputEnabled) 0 else R.drawable.bg_input_field_container_disabled)
-        binding.inputView.isEnabled = viewModel.inputEnabled
-        binding.addView.isEnabled = viewModel.inputEnabled
-        binding.sendView.isEnabled = viewModel.inputEnabled
+        binding.inputFieldContainerView.setBackgroundResource(if (presenter.inputEnabled) 0 else R.drawable.bg_input_field_container_disabled)
+        binding.inputView.isEnabled = presenter.inputEnabled
+        binding.addView.isEnabled = presenter.inputEnabled
+        binding.sendView.isEnabled = presenter.inputEnabled
         binding.quoteContainerView.visibility = View.GONE
         binding.filePreviewView.visibility = View.GONE
         binding.filePreviewDeleteView.visibility = View.GONE
@@ -366,10 +358,10 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 // file preview img
                 binding.filePreviewView.visibility = View.VISIBLE
                 binding.filePreviewDeleteView.visibility = View.VISIBLE
-                val mime = FileUtils.getMimeType(this, viewModel.selectedFile)
+                val mime = FileUtils.getMimeType(this, presenter.selectedFile)
                 if (mime.contains("image")) {
                     Glide.with(this)
-                            .load(viewModel.selectedFile)
+                            .load(presenter.selectedFile)
                             .placeholder(R.drawable.placeholder)
                             .error(R.drawable.placeholder)
                             .dontAnimate()
@@ -381,14 +373,14 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                             .dontAnimate()
                             .transform(CenterCrop(), RoundedCorners(resources.getDimensionPixelOffset(R.dimen.chat_upload_preview_corner_radius)))
                             .into(binding.filePreviewView)
-                    val filename = FileUtils.getFilename(this, viewModel.selectedFile)
+                    val filename = FileUtils.getFilename(this, presenter.selectedFile)
                     binding.fileNameView.visibility = View.VISIBLE
                     binding.fileNameView.text = filename
                 }
             }
             ChatViewState.QUOTE -> {
                 binding.quoteContainerView.visibility = View.VISIBLE
-                binding.quoteView.text = viewModel.quoteText
+                binding.quoteView.text = presenter.quoteText
             }
             ChatViewState.ATTRIBUTES -> {
                 InputUtils.hideKeyboard(this)
@@ -411,15 +403,15 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         for (department in departments) {
             val view = View.inflate(this, R.layout.l_department_button, null) as MaterialButton
             view.text = department.name
-            view.setOnClickListener { v: View? -> viewModel.selectDepartment(department) }
+            view.setOnClickListener { v: View? -> presenter.selectDepartment(department) }
             binding.departmentsButtonContainerView.addView(view)
         }
     }
 
     private fun onFileSelected(file: Uri) {
-        viewModel.selectedFile = file
-        viewModel.quoteText = null
-        viewModel.onFileSelected(file)
+        presenter.selectedFile = file
+        presenter.quoteText = null
+        presenter.onFileSelected(file)
     }
 
     private fun sendMessage() {
@@ -428,17 +420,17 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show()
             return
         }
-        if (!viewModel.inputEnabled) {
+        if (!presenter.inputEnabled) {
             Toast.makeText(this, "Отправка сообщений сейчас недоступна", Toast.LENGTH_SHORT).show()
             return
         }
-        val chatMessage = ChatState.instance.createNewTextMessage(text, viewModel.quoteText)
+        val chatMessage = ChatState.instance.createNewTextMessage(text, presenter.quoteText)
         binding.inputView.text = null
 
         // wait a bit and scroll to newly created user message
         binding.inputView.postDelayed({ binding.messagesView.smoothScrollToPosition(adapter.itemCount - 1) }, 200)
-        viewModel.quoteText = null
-        viewModel.sendMessage(chatMessage)
+        presenter.quoteText = null
+        presenter.sendMessage(chatMessage)
     }
 
     /**
@@ -480,10 +472,4 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             addFileDialog = null
         }
     }
-
-    // todo zavanton - remove
-    override fun logEvent() {
-        Log.d("zavanton", "zavanton - logEvent is called")
-    }
-
 }

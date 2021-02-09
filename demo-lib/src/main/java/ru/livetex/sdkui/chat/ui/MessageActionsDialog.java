@@ -48,12 +48,12 @@ public final class MessageActionsDialog extends Dialog {
 		resendView.setVisibility(withResend ? View.VISIBLE : View.GONE);
 	}
 
-	public void attach(Activity activity, ChatViewModel viewModel, ChatItem item) {
+	public void attach(Activity activity, ChatbotPresenter presenter, ChatItem item) {
 		resendView.setOnClickListener(v -> {
 			if (item.sentState == MessageSentState.FAILED) {
 				ChatMessage message = ChatState.instance.getMessage(item.id);
 				if (message != null) {
-					viewModel.resendMessage(message);
+					presenter.resendMessage(message);
 				}
 			}
 			dismiss();
@@ -68,7 +68,7 @@ public final class MessageActionsDialog extends Dialog {
 		});
 
 		quoteView.setOnClickListener(v -> {
-			viewModel.setQuoteText(item.content);
+			presenter.setQuoteText(item.content);
 			dismiss();
 		});
 	}

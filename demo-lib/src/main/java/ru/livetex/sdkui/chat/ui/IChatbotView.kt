@@ -9,9 +9,6 @@ import ru.livetex.sdk.network.NetworkManager
 interface IChatbotView : MvpView {
 
     @AddToEndSingle
-    fun logEvent()
-
-    @AddToEndSingle
     fun onConnectionStateUpdate(connectionState: NetworkManager.ConnectionState)
 
     @AddToEndSingle
