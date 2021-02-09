@@ -229,7 +229,6 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
     private fun subscribeViewModel() {
         viewModel!!.myViewStateLiveData.observe(this, Observer { viewState: ChatViewState? -> setViewState(viewState) })
-        viewModel!!.errorLiveData.observe(this, Observer { msg -> onError(msg) })
         viewModel!!.departmentsLiveData.observe(this, Observer { departments: List<Department> -> showDepartments(departments) })
         viewModel!!.dialogStateUpdateLiveData.observe(this, Observer { dialogState -> updateDialogState(dialogState) })
     }
@@ -462,7 +461,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         }
     }
 
-    private fun onError(msg: String?) {
+    override fun onError(msg: String) {
         if (TextUtils.isEmpty(msg)) {
             return
         }

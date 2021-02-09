@@ -43,7 +43,6 @@ class ChatViewModel(// todo zavanton - replace by room
     val departmentsLiveData = MutableLiveData<List<Department>>()
     val dialogStateUpdateLiveData = MutableLiveData<DialogState?>()
     internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
-    val errorLiveData = MutableLiveData<String?>()
 
     fun addViewState(state: IChatbotView) {
         viewState = state
@@ -126,7 +125,7 @@ class ChatViewModel(// todo zavanton - replace by room
     private fun onDepartmentsRequest(departmentRequestEntity: DepartmentRequestEntity) {
         val departments = departmentRequestEntity.departments
         if (departments.isEmpty()) {
-            errorLiveData.postValue("Список комнат пуст, свяжитесь с поддержкой")
+            viewState.onError("Список комнат пуст, свяжитесь с поддержкой")
             return
         }
         if (departments.size == 1) {
@@ -166,7 +165,7 @@ class ChatViewModel(// todo zavanton - replace by room
                     ChatState.instance.addOrUpdateMessage(chatMessage)
                 }) { thr: Throwable ->
                     Log.e(TAG, "sendMessage", thr)
-                    errorLiveData.postValue("Ошибка отправки " + thr.message)
+                    viewState.onError("Ошибка отправки " + thr.message)
                     chatMessage.setSentState(MessageSentState.FAILED)
                     ChatState.instance.addOrUpdateMessage(chatMessage)
                 }
@@ -200,12 +199,12 @@ class ChatViewModel(// todo zavanton - replace by room
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response: ResponseEntity ->
                     if (response.error != null && response.error!!.contains(LiveTexError.INVALID_DEPARTMENT)) {
-                        errorLiveData.setValue("Была выбрана невалидная комната")
+                        viewState.onError("Была выбрана невалидная комната")
                     } else {
                         myViewStateLiveData.setValue(ChatViewState.NORMAL)
                     }
                 }) { thr: Throwable ->
-                    errorLiveData.value = thr.message
+                    viewState.onError(thr.message ?: "")
                     Log.e(TAG, "sendDepartmentSelectionEvent", thr)
                 }
     }
@@ -268,7 +267,7 @@ class ChatViewModel(// todo zavanton - replace by room
                 }
                 ) { thr: Throwable ->
                     Log.e(TAG, "onFileUpload", thr)
-                    errorLiveData.postValue("Ошибка отправки " + thr.message)
+                    viewState.onError("Ошибка отправки " + thr.message)
                     chatMessage.setSentState(MessageSentState.FAILED)
                     ChatState.instance.addOrUpdateMessage(chatMessage)
                 }
@@ -306,7 +305,7 @@ class ChatViewModel(// todo zavanton - replace by room
                 .observeOn(Schedulers.io())
                 .subscribe({ visitorTokenReceived: String? -> sp.edit().putString(Const.KEY_VISITOR_TOKEN, visitorTokenReceived).apply() }) { e: Throwable ->
                     Log.e(TAG, "connect", e)
-                    errorLiveData.postValue("Ошибка соединения " + e.message)
+                    viewState.onError("Ошибка соединения " + e.message)
                 })
     }
 

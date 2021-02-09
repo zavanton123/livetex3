@@ -11,4 +11,7 @@ interface IChatbotView : MvpView {
 
     @AddToEndSingle
     fun onConnectionStateUpdate(connectionState: NetworkManager.ConnectionState)
+
+    @AddToEndSingle
+    fun onError(msg: String)
 }
