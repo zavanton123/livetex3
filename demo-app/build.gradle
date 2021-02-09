@@ -65,6 +65,13 @@ dependencies {
 	implementation 'com.google.firebase:firebase-messaging:20.3.0'
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+	// moxy
+	implementation "com.github.moxy-community:moxy:2.2.1"
+	implementation "com.github.moxy-community:moxy-android:2.2.1"
+	implementation "com.github.moxy-community:moxy-androidx:2.2.1"
+	implementation "com.github.moxy-community:moxy-ktx:2.2.1"
+	kapt "com.github.moxy-community:moxy-compiler:2.2.1"
 }
 repositories {
     mavenCentral()
