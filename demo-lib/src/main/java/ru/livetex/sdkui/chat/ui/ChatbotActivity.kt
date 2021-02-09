@@ -55,6 +55,17 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
+
+
+    companion object {
+        private const val TAG = "MainActivity"
+        private const val REQUEST_CODE_STORAGE = 2000
+        private const val TEXT_TYPING_DELAY = 500L // milliseconds
+
+        // todo zavanton - remove
+        lateinit var someContext: Context
+    }
+
     // todo zavanton - inject with dagger
     @JvmField
     @InjectPresenter
@@ -86,10 +97,14 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // todo zavanton - remove
+        someContext = this
+
         binding = DataBindingUtil.setContentView(this, R.layout.a_chat)
 
         // todo zavanton - remove
-        viewModel = ChatViewModelFactory(getSharedPreferences("livetex-demo", Context.MODE_PRIVATE)).create(ChatViewModel::class.java)
+        viewModel = ChatViewModelFactory().create(ChatViewModel::class.java)
         viewModel.addViewState(this)
 
         setupUI()
@@ -471,9 +486,4 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         Log.d("zavanton", "zavanton - logEvent is called")
     }
 
-    companion object {
-        private const val TAG = "MainActivity"
-        private const val REQUEST_CODE_STORAGE = 2000
-        private const val TEXT_TYPING_DELAY = 500L // milliseconds
-    }
 }

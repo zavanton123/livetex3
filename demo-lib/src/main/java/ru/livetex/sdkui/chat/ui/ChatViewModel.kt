@@ -27,8 +27,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class ChatViewModel(// todo zavanton - replace by room
-        private val sp: SharedPreferences) : ViewModel() {
+class ChatViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "ChatViewModel"
@@ -318,6 +317,9 @@ class ChatViewModel(// todo zavanton - replace by room
     }
 
     fun onResume() {
+        // todo zavanton - replace by room
+        val sp = ChatbotActivity.someContext.getSharedPreferences("livetex-demo", Context.MODE_PRIVATE)
+
         val visitorToken = sp.getString(Const.KEY_VISITOR_TOKEN, null)
         Log.d("zavanton", "zavanton - initial token: $visitorToken")
 
