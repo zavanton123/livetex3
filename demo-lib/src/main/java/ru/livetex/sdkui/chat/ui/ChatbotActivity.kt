@@ -230,7 +230,6 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     private fun subscribeViewModel() {
         viewModel!!.myViewStateLiveData.observe(this, Observer { viewState: ChatViewState? -> setViewState(viewState) })
         viewModel!!.departmentsLiveData.observe(this, Observer { departments: List<Department> -> showDepartments(departments) })
-        viewModel!!.dialogStateUpdateLiveData.observe(this, Observer { dialogState -> updateDialogState(dialogState) })
     }
 
     private fun setMessages(chatMessages: List<ChatMessage>) {
@@ -441,7 +440,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     /**
      * Here you can use dialog status and employee data
      */
-    private fun updateDialogState(dialogState: DialogState?) {
+    override fun updateDialogState(dialogState: DialogState?) {
         if (dialogState != null) {
             val shouldShowFeedback = dialogState.employee != null && dialogState.employee!!.rating == null
             binding!!.feedbackContainerView.visibility = if (shouldShowFeedback) View.VISIBLE else View.GONE

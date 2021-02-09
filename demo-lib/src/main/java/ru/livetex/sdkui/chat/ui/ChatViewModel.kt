@@ -40,8 +40,9 @@ class ChatViewModel(// todo zavanton - replace by room
     private val messagesHandler = LiveTex.getInstance().messagesHandler
     private val networkManager = LiveTex.getInstance().networkManager
 
+    var dialogState: DialogState? = null
+
     val departmentsLiveData = MutableLiveData<List<Department>>()
-    val dialogStateUpdateLiveData = MutableLiveData<DialogState?>()
     internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
 
     fun addViewState(state: IChatbotView) {
@@ -98,17 +99,18 @@ class ChatViewModel(// todo zavanton - replace by room
                         inputEnabled = state.isInputEnabled
                         myViewStateLiveData.postValue(myViewStateLiveData.value)
                     }
-                    dialogStateUpdateLiveData.postValue(state)
+                    dialogState = state
+                    viewState.updateDialogState(state)
                 }) { thr: Throwable? -> Log.e(TAG, "dialogStateUpdate", thr) })
         disposables.add(messagesHandler.employeeTyping()
                 .observeOn(Schedulers.io())
                 .subscribe({ event: EmployeeTypingEvent? ->
-                    if (dialogStateUpdateLiveData.value == null) {
+                    if (dialogState == null) {
                         // We need Employee info
                         return@subscribe
                     }
                     if (ChatState.instance.getMessage(ChatMessage.ID_TYPING) == null) {
-                        val typingMessage = ChatState.instance.createTypingMessage(dialogStateUpdateLiveData.value!!.employee)
+                        val typingMessage = ChatState.instance.createTypingMessage(dialogState!!.employee)
                     }
                     if (employeeTypingDisposable != null && !employeeTypingDisposable!!.isDisposed) {
                         employeeTypingDisposable!!.dispose()

@@ -2,6 +2,7 @@ package ru.livetex.sdkui.chat.ui
 
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
+import ru.livetex.sdk.entity.DialogState
 import ru.livetex.sdk.network.NetworkManager
 
 interface IChatbotView : MvpView {
@@ -14,4 +15,7 @@ interface IChatbotView : MvpView {
 
     @AddToEndSingle
     fun onError(msg: String)
+
+    @AddToEndSingle
+    fun updateDialogState(dialogState: DialogState?)
 }
