@@ -19,9 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -72,6 +69,7 @@ import ru.livetex.sdkui.utils.TextWatcherAdapter;
 
 public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotView {
 
+    // todo zavanton - inject with dagger
     @InjectPresenter
     ChatbotPresenter presenter;
 
@@ -86,49 +84,28 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
     private static final int REQUEST_CODE_STORAGE = 2000;
 
     private final CompositeDisposable disposables = new CompositeDisposable();
+
+    // todo zavanton - remove
     private ChatViewModel viewModel;
+
     private final MessagesAdapter adapter = new MessagesAdapter(button -> viewModel.onMessageActionButtonClicked(this, button));
     private AddFileDialog addFileDialog = null;
 
     private final static long TEXT_TYPING_DELAY = 500L; // milliseconds
     private final PublishSubject<String> textSubject = PublishSubject.create();
 
-//    private EditText inputView;
-//    private ImageView addView;
-//    private ImageView sendView;
-//    private RecyclerView messagesView;
-//    private ViewGroup inputContainerView;
-//    private ViewGroup inputFieldContainerView;
-//    private ViewGroup attributesContainerView;
-//    private ViewGroup departmentsContainerView;
-//    private ViewGroup departmentsButtonContainerView;
-//    private ViewGroup feedbackContainerView;
-//    private ImageView feedbackPositiveView;
-//    private ImageView feedbackNegativeView;
-//    private View attributesSendView;
-//    private EditText attributesNameView;
-//    private EditText attributesPhoneView;
-//    private EditText attributesEmailView;
-//    private ImageView filePreviewView;
-//    private ImageView filePreviewDeleteView;
-//    private TextView fileNameView;
-//    private ViewGroup quoteContainerView;
-//    private TextView quoteView;
-//    private ImageView quoteCloseView;
 
-    // For disconnecting from websocket on pause and connecting on resume.
-    // If you need active websocket while app in background, just use viewModel.onResume()
-    private final LifecycleObserver lifecycleObserver = new LifecycleObserver() {
-        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        public void resumed() {
-            viewModel.onResume();
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.onResume();
+    }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        public void paused() {
-            viewModel.onPause();
-        }
-    };
+    @Override
+    protected void onPause() {
+        super.onPause();
+        viewModel.onPause();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,34 +113,12 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
 
         binding = DataBindingUtil.setContentView(this, R.layout.a_chat);
 
-//        inputView = findViewById(R.id.inputView);
-//        sendView = findViewById(R.id.sendView);
-//        addView = findViewById(R.id.addView);
-//        messagesView = findViewById(R.id.messagesView);
-//        inputContainerView = findViewById(R.id.inputContainerView);
-//        inputFieldContainerView = findViewById(R.id.inputFieldContainerView);
-//        attributesContainerView = findViewById(R.id.attributesContainerView);
-//        departmentsContainerView = findViewById(R.id.departmentsContainerView);
-//        departmentsButtonContainerView = findViewById(R.id.departmentsButtonContainerView);
-//        feedbackContainerView = findViewById(R.id.feedbackContainerView);
-//        feedbackPositiveView = findViewById(R.id.feedbackPositiveView);
-//        feedbackNegativeView = findViewById(R.id.feedbackNegativeView);
-//        attributesSendView = findViewById(R.id.attributesSendView);
-//        attributesNameView = findViewById(R.id.attributesNameView);
-//        attributesPhoneView = findViewById(R.id.attributesPhoneView);
-//        attributesEmailView = findViewById(R.id.attributesEmailView);
-//        filePreviewView = findViewById(R.id.filePreviewView);
-//        filePreviewDeleteView = findViewById(R.id.filePreviewDeleteView);
-//        fileNameView = findViewById(R.id.fileNameView);
-//        quoteContainerView = findViewById(R.id.quoteContainerView);
-//        quoteView = findViewById(R.id.quoteView);
-//        quoteCloseView = findViewById(R.id.quoteCloseView);
-
+        // todo zavanton - remove
         viewModel = new ChatViewModelFactory(getSharedPreferences("livetex-demo", Context.MODE_PRIVATE)).create(ChatViewModel.class);
 
         setupUI();
         subscribeViewModel();
-        getLifecycle().addObserver(lifecycleObserver);
+
         NetworkManager.getInstance().startObserveNetworkState(this);
     }
 
@@ -606,9 +561,9 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
             addFileDialog.close();
             addFileDialog = null;
         }
-        getLifecycle().removeObserver(lifecycleObserver);
     }
 
+    // todo zavanton - remove
     @Override
     public void logEvent() {
         Log.d("zavanton", "zavanton - logEvent is called");

@@ -45,8 +45,11 @@ public final class ChatViewModel extends ViewModel {
 	private static final String TAG = "ChatViewModel";
 
 	private final CompositeDisposable disposables = new CompositeDisposable();
+
 	private Disposable employeeTypingDisposable = null;
+	// todo zavanton - replace by room
 	private final SharedPreferences sp;
+
 	private final LiveTexMessagesHandler messagesHandler = LiveTex.getInstance().getMessagesHandler();
 	private final NetworkManager networkManager = LiveTex.getInstance().getNetworkManager();
 
@@ -331,20 +334,6 @@ public final class ChatViewModel extends ViewModel {
 		disposables.add(d);
 	}
 
-	private void connect() {
-		String visitorToken = sp.getString(Const.KEY_VISITOR_TOKEN, null);
-
-		disposables.add(networkManager.connect(visitorToken, AuthTokenType.DEFAULT)
-				.subscribeOn(Schedulers.io())
-				.observeOn(Schedulers.io())
-				.subscribe(visitorTokenReceived -> {
-					sp.edit().putString(Const.KEY_VISITOR_TOKEN, visitorTokenReceived).apply();
-				}, e -> {
-					Log.e(TAG, "connect", e);
-					errorLiveData.postValue("Ошибка соединения " + e.getMessage());
-				}));
-	}
-
 	public boolean canPreloadMessages() {
 		return ChatState.instance.canPreloadChatMessages;
 	}
@@ -374,7 +363,17 @@ public final class ChatViewModel extends ViewModel {
 	}
 
 	public void onResume() {
-		connect();
+		String visitorToken = sp.getString(Const.KEY_VISITOR_TOKEN, null);
+
+		disposables.add(networkManager.connect(visitorToken, AuthTokenType.DEFAULT)
+				.subscribeOn(Schedulers.io())
+				.observeOn(Schedulers.io())
+				.subscribe(visitorTokenReceived -> {
+					sp.edit().putString(Const.KEY_VISITOR_TOKEN, visitorTokenReceived).apply();
+				}, e -> {
+					Log.e(TAG, "connect", e);
+					errorLiveData.postValue("Ошибка соединения " + e.getMessage());
+				}));
 	}
 
 	public void onPause() {
