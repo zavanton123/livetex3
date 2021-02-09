@@ -12,22 +12,18 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
@@ -66,6 +62,7 @@ import ru.livetex.sdkui.chat.db.ChatState;
 import ru.livetex.sdkui.chat.db.entity.ChatMessage;
 import ru.livetex.sdkui.chat.db.entity.MessageSentState;
 import ru.livetex.sdkui.chat.image.ImageActivity;
+import ru.livetex.sdkui.databinding.AChatBinding;
 import ru.livetex.sdkui.utils.DateUtils;
 import ru.livetex.sdkui.utils.FileUtils;
 import ru.livetex.sdkui.utils.InputUtils;
@@ -83,6 +80,8 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
         return new ChatbotPresenter();
     }
 
+    AChatBinding binding;
+
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE_STORAGE = 2000;
 
@@ -94,28 +93,28 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
     private final static long TEXT_TYPING_DELAY = 500L; // milliseconds
     private final PublishSubject<String> textSubject = PublishSubject.create();
 
-    private EditText inputView;
-    private ImageView addView;
-    private ImageView sendView;
-    private RecyclerView messagesView;
-    private ViewGroup inputContainerView;
-    private ViewGroup inputFieldContainerView;
-    private ViewGroup attributesContainerView;
-    private ViewGroup departmentsContainerView;
-    private ViewGroup departmentsButtonContainerView;
-    private ViewGroup feedbackContainerView;
-    private ImageView feedbackPositiveView;
-    private ImageView feedbackNegativeView;
-    private View attributesSendView;
-    private EditText attributesNameView;
-    private EditText attributesPhoneView;
-    private EditText attributesEmailView;
-    private ImageView filePreviewView;
-    private ImageView filePreviewDeleteView;
-    private TextView fileNameView;
-    private ViewGroup quoteContainerView;
-    private TextView quoteView;
-    private ImageView quoteCloseView;
+//    private EditText inputView;
+//    private ImageView addView;
+//    private ImageView sendView;
+//    private RecyclerView messagesView;
+//    private ViewGroup inputContainerView;
+//    private ViewGroup inputFieldContainerView;
+//    private ViewGroup attributesContainerView;
+//    private ViewGroup departmentsContainerView;
+//    private ViewGroup departmentsButtonContainerView;
+//    private ViewGroup feedbackContainerView;
+//    private ImageView feedbackPositiveView;
+//    private ImageView feedbackNegativeView;
+//    private View attributesSendView;
+//    private EditText attributesNameView;
+//    private EditText attributesPhoneView;
+//    private EditText attributesEmailView;
+//    private ImageView filePreviewView;
+//    private ImageView filePreviewDeleteView;
+//    private TextView fileNameView;
+//    private ViewGroup quoteContainerView;
+//    private TextView quoteView;
+//    private ImageView quoteCloseView;
 
     // For disconnecting from websocket on pause and connecting on resume.
     // If you need active websocket while app in background, just use viewModel.onResume()
@@ -134,30 +133,31 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.a_chat);
 
-        inputView = findViewById(R.id.inputView);
-        sendView = findViewById(R.id.sendView);
-        addView = findViewById(R.id.addView);
-        messagesView = findViewById(R.id.messagesView);
-        inputContainerView = findViewById(R.id.inputContainerView);
-        inputFieldContainerView = findViewById(R.id.inputFieldContainerView);
-        attributesContainerView = findViewById(R.id.attributesContainerView);
-        departmentsContainerView = findViewById(R.id.departmentsContainerView);
-        departmentsButtonContainerView = findViewById(R.id.departmentsButtonContainerView);
-        feedbackContainerView = findViewById(R.id.feedbackContainerView);
-        feedbackPositiveView = findViewById(R.id.feedbackPositiveView);
-        feedbackNegativeView = findViewById(R.id.feedbackNegativeView);
-        attributesSendView = findViewById(R.id.attributesSendView);
-        attributesNameView = findViewById(R.id.attributesNameView);
-        attributesPhoneView = findViewById(R.id.attributesPhoneView);
-        attributesEmailView = findViewById(R.id.attributesEmailView);
-        filePreviewView = findViewById(R.id.filePreviewView);
-        filePreviewDeleteView = findViewById(R.id.filePreviewDeleteView);
-        fileNameView = findViewById(R.id.fileNameView);
-        quoteContainerView = findViewById(R.id.quoteContainerView);
-        quoteView = findViewById(R.id.quoteView);
-        quoteCloseView = findViewById(R.id.quoteCloseView);
+        binding = DataBindingUtil.setContentView(this, R.layout.a_chat);
+
+//        inputView = findViewById(R.id.inputView);
+//        sendView = findViewById(R.id.sendView);
+//        addView = findViewById(R.id.addView);
+//        messagesView = findViewById(R.id.messagesView);
+//        inputContainerView = findViewById(R.id.inputContainerView);
+//        inputFieldContainerView = findViewById(R.id.inputFieldContainerView);
+//        attributesContainerView = findViewById(R.id.attributesContainerView);
+//        departmentsContainerView = findViewById(R.id.departmentsContainerView);
+//        departmentsButtonContainerView = findViewById(R.id.departmentsButtonContainerView);
+//        feedbackContainerView = findViewById(R.id.feedbackContainerView);
+//        feedbackPositiveView = findViewById(R.id.feedbackPositiveView);
+//        feedbackNegativeView = findViewById(R.id.feedbackNegativeView);
+//        attributesSendView = findViewById(R.id.attributesSendView);
+//        attributesNameView = findViewById(R.id.attributesNameView);
+//        attributesPhoneView = findViewById(R.id.attributesPhoneView);
+//        attributesEmailView = findViewById(R.id.attributesEmailView);
+//        filePreviewView = findViewById(R.id.filePreviewView);
+//        filePreviewDeleteView = findViewById(R.id.filePreviewDeleteView);
+//        fileNameView = findViewById(R.id.fileNameView);
+//        quoteContainerView = findViewById(R.id.quoteContainerView);
+//        quoteView = findViewById(R.id.quoteView);
+//        quoteCloseView = findViewById(R.id.quoteCloseView);
 
         viewModel = new ChatViewModelFactory(getSharedPreferences("livetex-demo", Context.MODE_PRIVATE)).create(ChatViewModel.class);
 
@@ -191,18 +191,18 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
             }
         });
 
-        messagesView.setAdapter(adapter);
+        binding.messagesView.setAdapter(adapter);
 //		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(messagesView.getContext(),
 //				DividerItemDecoration.VERTICAL);
 //		dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
 //		messagesView.addItemDecoration(dividerItemDecoration);
-        ((SimpleItemAnimator) messagesView.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator) binding.messagesView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         disposables.add(ChatState.instance.messages()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::setMessages, thr -> Log.e(TAG, "messages observe", thr)));
 
-        messagesView.addOnScrollListener(new RecyclerViewScrollListener((LinearLayoutManager) messagesView.getLayoutManager()) {
+        binding.messagesView.addOnScrollListener(new RecyclerViewScrollListener((LinearLayoutManager) binding.messagesView.getLayoutManager()) {
             @Override
             public void onLoadRequest() {
                 String firstMessageId = null;
@@ -227,20 +227,20 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
         });
 
         View.OnClickListener feedbackClickListener = v -> {
-            feedbackContainerView.postDelayed(() -> feedbackContainerView.setVisibility(View.GONE), 250);
+            binding.feedbackContainerView.postDelayed(() -> binding.feedbackContainerView.setVisibility(View.GONE), 250);
             viewModel.sendFeedback(v.getId() == R.id.feedbackPositiveView);
         };
-        feedbackPositiveView.setOnClickListener(feedbackClickListener);
-        feedbackNegativeView.setOnClickListener(feedbackClickListener);
+        binding.feedbackPositiveView.setOnClickListener(feedbackClickListener);
+        binding.feedbackNegativeView.setOnClickListener(feedbackClickListener);
 
-        quoteCloseView.setOnClickListener(v -> {
+        binding.quoteCloseView.setOnClickListener(v -> {
             viewModel.setQuoteText(null);
         });
     }
 
     private void setupInput() {
         // --- Chat input
-        sendView.setOnClickListener(v -> {
+        binding.sendView.setOnClickListener(v -> {
             if (!viewModel.inputEnabled) {
                 Toast.makeText(this, "Отправка сейчас недоступна", Toast.LENGTH_SHORT).show();
                 return;
@@ -256,7 +256,7 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
             }
         });
 
-        inputView.setOnEditorActionListener((v, actionId, event) -> {
+        binding.inputView.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 sendMessage();
                 return true;
@@ -264,7 +264,7 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
             return false;
         });
 
-        addView.setOnClickListener(v -> {
+        binding.addView.setOnClickListener(v -> {
             if (!viewModel.inputEnabled) {
                 Toast.makeText(this, "Отправка файлов сейчас недоступна", Toast.LENGTH_SHORT).show();
                 return;
@@ -290,7 +290,7 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
                 });
         disposables.add(disposable);
 
-        inputView.addTextChangedListener(new TextWatcherAdapter() {
+        binding.inputView.addTextChangedListener(new TextWatcherAdapter() {
             @Override
             public void afterTextChanged(Editable editable) {
                 // notify about typing
@@ -298,22 +298,22 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
             }
         });
 
-        filePreviewDeleteView.setOnClickListener(v -> {
+        binding.filePreviewDeleteView.setOnClickListener(v -> {
             viewModel.selectedFile = null;
             viewModel.viewStateLiveData.setValue(ChatViewState.NORMAL);
         });
 
         // --- Attributes
 
-        attributesSendView.setOnClickListener(v -> {
-            String name = attributesNameView.getText().toString().trim();
-            String phone = attributesPhoneView.getText().toString().trim();
-            String email = attributesEmailView.getText().toString().trim();
+        binding.attributesSendView.setOnClickListener(v -> {
+            String name = binding.attributesNameView.getText().toString().trim();
+            String phone = binding.attributesPhoneView.getText().toString().trim();
+            String email = binding.attributesEmailView.getText().toString().trim();
 
             // Check for required fields. In demo only name is required, in real app depends on your configs.
             if (TextUtils.isEmpty(name)) {
-                attributesNameView.setError("Заполните поле");
-                attributesNameView.requestFocus();
+                binding.attributesNameView.setError("Заполните поле");
+                binding.attributesNameView.requestFocus();
                 return;
             }
 
@@ -333,7 +333,7 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
     private void setMessages(List<ChatMessage> chatMessages) {
         List<AdapterItem> items = new ArrayList<>();
         List<String> days = new ArrayList<>();
-        LinearLayoutManager layoutManager = (LinearLayoutManager) messagesView.getLayoutManager();
+        LinearLayoutManager layoutManager = (LinearLayoutManager) binding.messagesView.getLayoutManager();
         boolean isLastMessageVisible = adapter.getItemCount() > 0 && layoutManager.findLastVisibleItemPosition() == adapter.getItemCount() - 1;
 
         for (ChatMessage chatMessage : chatMessages) {
@@ -360,8 +360,8 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
 
         if (isLastMessageVisible && adapter.getItemCount() > 0) {
             // post() allows to scroll when child layout phase is done and sizes are proper.
-            messagesView.post(() -> {
-                messagesView.smoothScrollToPosition(adapter.getItemCount());
+            binding.messagesView.post(() -> {
+                binding.messagesView.smoothScrollToPosition(adapter.getItemCount());
             });
         }
     }
@@ -459,30 +459,30 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
         }
 
         // Set default state at first
-        inputFieldContainerView.setBackgroundResource(viewModel.inputEnabled ? 0 : R.drawable.bg_input_field_container_disabled);
-        inputView.setEnabled(viewModel.inputEnabled);
-        addView.setEnabled(viewModel.inputEnabled);
-        sendView.setEnabled(viewModel.inputEnabled);
-        quoteContainerView.setVisibility(View.GONE);
-        filePreviewView.setVisibility(View.GONE);
-        filePreviewDeleteView.setVisibility(View.GONE);
-        fileNameView.setVisibility(View.GONE);
+        binding.inputFieldContainerView.setBackgroundResource(viewModel.inputEnabled ? 0 : R.drawable.bg_input_field_container_disabled);
+        binding.inputView.setEnabled(viewModel.inputEnabled);
+        binding.addView.setEnabled(viewModel.inputEnabled);
+        binding.sendView.setEnabled(viewModel.inputEnabled);
+        binding.quoteContainerView.setVisibility(View.GONE);
+        binding.filePreviewView.setVisibility(View.GONE);
+        binding.filePreviewDeleteView.setVisibility(View.GONE);
+        binding.fileNameView.setVisibility(View.GONE);
 
         // Apply specific state
         switch (viewState) {
             case NORMAL:
-                inputContainerView.setVisibility(View.VISIBLE);
-                attributesContainerView.setVisibility(View.GONE);
-                departmentsContainerView.setVisibility(View.GONE);
+                binding.inputContainerView.setVisibility(View.VISIBLE);
+                binding.attributesContainerView.setVisibility(View.GONE);
+                binding.departmentsContainerView.setVisibility(View.GONE);
 
                 break;
             case SEND_FILE_PREVIEW:
                 // gray background
-                inputFieldContainerView.setBackgroundResource(R.drawable.bg_input_field_container_disabled);
-                inputView.setEnabled(false);
+                binding.inputFieldContainerView.setBackgroundResource(R.drawable.bg_input_field_container_disabled);
+                binding.inputView.setEnabled(false);
                 // file preview img
-                filePreviewView.setVisibility(View.VISIBLE);
-                filePreviewDeleteView.setVisibility(View.VISIBLE);
+                binding.filePreviewView.setVisibility(View.VISIBLE);
+                binding.filePreviewDeleteView.setVisibility(View.VISIBLE);
 
                 String mime = FileUtils.getMimeType(this, viewModel.selectedFile);
 
@@ -493,48 +493,48 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
                             .error(R.drawable.placeholder)
                             .dontAnimate()
                             .transform(new CenterCrop(), new RoundedCorners(getResources().getDimensionPixelOffset(R.dimen.chat_upload_preview_corner_radius)))
-                            .into(filePreviewView);
+                            .into(binding.filePreviewView);
                 } else {
                     Glide.with(this)
                             .load(R.drawable.doc_big)
                             .dontAnimate()
                             .transform(new CenterCrop(), new RoundedCorners(getResources().getDimensionPixelOffset(R.dimen.chat_upload_preview_corner_radius)))
-                            .into(filePreviewView);
+                            .into(binding.filePreviewView);
 
                     String filename = FileUtils.getFilename(this, viewModel.selectedFile);
-                    fileNameView.setVisibility(View.VISIBLE);
-                    fileNameView.setText(filename);
+                    binding.fileNameView.setVisibility(View.VISIBLE);
+                    binding.fileNameView.setText(filename);
                 }
                 break;
             case QUOTE:
-                quoteContainerView.setVisibility(View.VISIBLE);
-                quoteView.setText(viewModel.getQuoteText());
+                binding.quoteContainerView.setVisibility(View.VISIBLE);
+                binding.quoteView.setText(viewModel.getQuoteText());
                 break;
             case ATTRIBUTES:
                 InputUtils.hideKeyboard(this);
-                inputView.clearFocus();
-                inputContainerView.setVisibility(View.GONE);
-                attributesContainerView.setVisibility(View.VISIBLE);
+                binding.inputView.clearFocus();
+                binding.inputContainerView.setVisibility(View.GONE);
+                binding.attributesContainerView.setVisibility(View.VISIBLE);
                 break;
             case DEPARTMENTS:
                 InputUtils.hideKeyboard(this);
-                inputView.clearFocus();
-                inputContainerView.setVisibility(View.GONE);
-                attributesContainerView.setVisibility(View.GONE);
-                departmentsContainerView.setVisibility(View.VISIBLE);
+                binding.inputView.clearFocus();
+                binding.inputContainerView.setVisibility(View.GONE);
+                binding.attributesContainerView.setVisibility(View.GONE);
+                binding.departmentsContainerView.setVisibility(View.VISIBLE);
                 break;
         }
     }
 
     private void showDepartments(List<Department> departments) {
-        departmentsButtonContainerView.removeAllViews();
+        binding.departmentsButtonContainerView.removeAllViews();
 
         for (Department department : departments) {
             MaterialButton view = (MaterialButton) View.inflate(this, R.layout.l_department_button, null);
             view.setText(department.name);
             view.setOnClickListener(v -> viewModel.selectDepartment(department));
 
-            departmentsButtonContainerView.addView(view);
+            binding.departmentsButtonContainerView.addView(view);
         }
     }
 
@@ -545,7 +545,7 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
     }
 
     private void sendMessage() {
-        String text = inputView.getText().toString().trim();
+        String text = binding.inputView.getText().toString().trim();
 
         if (TextUtils.isEmpty(text)) {
             Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show();
@@ -557,10 +557,10 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
         }
 
         ChatMessage chatMessage = ChatState.instance.createNewTextMessage(text, viewModel.getQuoteText());
-        inputView.setText(null);
+        binding.inputView.setText(null);
 
         // wait a bit and scroll to newly created user message
-        inputView.postDelayed(() -> messagesView.smoothScrollToPosition(adapter.getItemCount() - 1), 200);
+        binding.inputView.postDelayed(() -> binding.messagesView.smoothScrollToPosition(adapter.getItemCount() - 1), 200);
 
         viewModel.setQuoteText(null);
         viewModel.sendMessage(chatMessage);
@@ -571,7 +571,7 @@ public class ChatbotActivity extends MvpAppCompatActivity implements IChatbotVie
      */
     private void updateDialogState(DialogState dialogState) {
         boolean shouldShowFeedback = dialogState.employee != null && dialogState.employee.rating == null;
-        feedbackContainerView.setVisibility(shouldShowFeedback ? View.VISIBLE : View.GONE);
+        binding.feedbackContainerView.setVisibility(shouldShowFeedback ? View.VISIBLE : View.GONE);
     }
 
     private void onConnectionStateUpdate(NetworkManager.ConnectionState connectionState) {
