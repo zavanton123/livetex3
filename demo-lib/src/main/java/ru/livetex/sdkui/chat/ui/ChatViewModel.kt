@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -41,8 +40,7 @@ class ChatViewModel(// todo zavanton - replace by room
     private val networkManager = LiveTex.getInstance().networkManager
 
     var dialogState: DialogState? = null
-
-    internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
+    internal var myViewState: ChatViewState = ChatViewState.NORMAL
 
     fun addViewState(state: IChatbotView) {
         viewState = state
@@ -56,9 +54,11 @@ class ChatViewModel(// todo zavanton - replace by room
         set(quoteText) {
             field = quoteText
             if (TextUtils.isEmpty(this.quoteText)) {
-                myViewStateLiveData.setValue(ChatViewState.NORMAL)
+                myViewState = ChatViewState.NORMAL
+                viewState.updateViewState(ChatViewState.NORMAL)
             } else {
-                myViewStateLiveData.setValue(ChatViewState.QUOTE)
+                myViewState = ChatViewState.QUOTE
+                viewState.updateViewState(ChatViewState.QUOTE)
             }
         }
 
@@ -88,7 +88,8 @@ class ChatViewModel(// todo zavanton - replace by room
                     // Это лишь пример реализации того, как собрать и отправить аттрибуты.
                     // Важно только ответить на attributesRequest посылкой обязательных (если есть) аттрибутов.
                     // То есть если не требуется собирать аттрибуты от пользователя, можно просто ответить на запрос с помощью messagesHandler.sendAttributes
-                    myViewStateLiveData.postValue(ChatViewState.ATTRIBUTES)
+                    myViewState = ChatViewState.ATTRIBUTES
+                    viewState.updateViewState(ChatViewState.ATTRIBUTES)
                 }) { thr: Throwable? -> Log.e(TAG, "", thr) })
         disposables.add(messagesHandler.dialogStateUpdate()
                 .observeOn(Schedulers.io())
@@ -96,7 +97,7 @@ class ChatViewModel(// todo zavanton - replace by room
                     val inputStateChanged = inputEnabled != state.isInputEnabled
                     if (inputStateChanged) {
                         inputEnabled = state.isInputEnabled
-                        myViewStateLiveData.postValue(myViewStateLiveData.value)
+                        viewState.updateViewState(myViewState)
                     }
                     dialogState = state
                     viewState.updateDialogState(state)
@@ -134,14 +135,20 @@ class ChatViewModel(// todo zavanton - replace by room
             return
         }
         viewState.showDepartments(departments)
-        myViewStateLiveData.postValue(ChatViewState.DEPARTMENTS)
+        myViewState = ChatViewState.DEPARTMENTS
+        viewState.updateViewState(ChatViewState.DEPARTMENTS)
     }
 
     fun sendAttributes(name: String?, phone: String?, email: String?) {
         val d = Completable.fromAction { messagesHandler.sendAttributes(name, phone, email, null) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe({ myViewStateLiveData.postValue(ChatViewState.NORMAL) }) { thr: Throwable? -> Log.e(TAG, "sendAttributes", thr) }
+                .subscribe(
+                        {
+                            myViewState = ChatViewState.NORMAL
+                            viewState.updateViewState(ChatViewState.NORMAL)
+                        }
+                ) { thr: Throwable? -> Log.e(TAG, "sendAttributes", thr) }
         disposables.add(d)
     }
 
@@ -202,7 +209,8 @@ class ChatViewModel(// todo zavanton - replace by room
                     if (response.error != null && response.error!!.contains(LiveTexError.INVALID_DEPARTMENT)) {
                         viewState.onError("Была выбрана невалидная комната")
                     } else {
-                        myViewStateLiveData.setValue(ChatViewState.NORMAL)
+                        myViewState = ChatViewState.NORMAL
+                        viewState.updateViewState(ChatViewState.NORMAL)
                     }
                 }) { thr: Throwable ->
                     viewState.onError(thr.message ?: "")
@@ -251,7 +259,8 @@ class ChatViewModel(// todo zavanton - replace by room
 
                     // return UI to normal
                     selectedFile = null
-                    myViewStateLiveData.postValue(ChatViewState.NORMAL)
+                    myViewState = ChatViewState.NORMAL
+                    viewState.updateViewState(ChatViewState.NORMAL)
                 }
                 .flatMap { response: FileUploadedResponse? -> messagesHandler.sendFileMessage(response) }
                 .subscribe({ resp: ResponseEntity ->
@@ -312,6 +321,16 @@ class ChatViewModel(// todo zavanton - replace by room
 
     fun onPause() {
         networkManager.forceDisconnect()
+    }
+
+    fun onFileSelected(file: Uri) {
+        myViewState = ChatViewState.SEND_FILE_PREVIEW
+        viewState.updateViewState(ChatViewState.SEND_FILE_PREVIEW)
+    }
+
+    fun onFilePreviewDeleteViewClick() {
+        myViewState = ChatViewState.NORMAL
+        viewState.updateViewState(ChatViewState.NORMAL)
     }
 
     companion object {

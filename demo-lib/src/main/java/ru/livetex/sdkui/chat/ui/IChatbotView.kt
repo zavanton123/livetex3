@@ -22,4 +22,7 @@ interface IChatbotView : MvpView {
 
     @AddToEndSingle
     fun showDepartments(departments: List<Department>)
+
+    @AddToEndSingle
+    fun updateViewState(viewState: ChatViewState)
 }

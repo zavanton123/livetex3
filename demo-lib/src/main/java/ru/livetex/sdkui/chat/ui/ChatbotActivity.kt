@@ -18,7 +18,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -71,7 +70,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
     // todo zavanton - remove
     private lateinit var viewModel: ChatViewModel
-    private val adapter = MessagesAdapter(Consumer { button: KeyboardEntity.Button? -> viewModel!!.onMessageActionButtonClicked(this, button!!) })
+    private val adapter = MessagesAdapter(Consumer { button: KeyboardEntity.Button? -> viewModel.onMessageActionButtonClicked(this, button!!) })
     private var addFileDialog: AddFileDialog? = null
     private val textSubject = PublishSubject.create<String>()
 
@@ -94,7 +93,6 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         viewModel.addViewState(this)
 
         setupUI()
-        subscribeViewModel()
         NetworkManager.getInstance().startObserveNetworkState(this)
     }
 
@@ -136,36 +134,36 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                         break
                     }
                 }
-                viewModel!!.loadPreviousMessages(firstMessageId, Const.PRELOAD_MESSAGES_COUNT)
+                viewModel.loadPreviousMessages(firstMessageId, Const.PRELOAD_MESSAGES_COUNT)
             }
 
             override fun canLoadMore(): Boolean {
-                return viewModel!!.canPreloadMessages()
+                return viewModel.canPreloadMessages()
             }
 
             override fun onScrollDown() {}
         })
         val feedbackClickListener = View.OnClickListener { v: View ->
             binding!!.feedbackContainerView.postDelayed({ binding!!.feedbackContainerView.visibility = View.GONE }, 250)
-            viewModel!!.sendFeedback(v.id == R.id.feedbackPositiveView)
+            viewModel.sendFeedback(v.id == R.id.feedbackPositiveView)
         }
         binding!!.feedbackPositiveView.setOnClickListener(feedbackClickListener)
         binding!!.feedbackNegativeView.setOnClickListener(feedbackClickListener)
-        binding!!.quoteCloseView.setOnClickListener { v: View? -> viewModel!!.quoteText = null }
+        binding!!.quoteCloseView.setOnClickListener { v: View? -> viewModel.quoteText = null }
     }
 
     private fun setupInput() {
         // --- Chat input
         binding!!.sendView.setOnClickListener { v: View? ->
-            if (!viewModel!!.inputEnabled) {
+            if (!viewModel.inputEnabled) {
                 Toast.makeText(this, "Отправка сейчас недоступна", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             // Send file or message
-            if (viewModel!!.selectedFile != null) {
-                val path = FileUtils.getRealPathFromUri(this, viewModel!!.selectedFile)
+            if (viewModel.selectedFile != null) {
+                val path = FileUtils.getRealPathFromUri(this, viewModel.selectedFile)
                 if (path != null) {
-                    viewModel!!.sendFile(path)
+                    viewModel.sendFile(path)
                 }
             } else {
                 sendMessage()
@@ -179,7 +177,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             false
         }
         binding!!.addView.setOnClickListener { v: View? ->
-            if (!viewModel!!.inputEnabled) {
+            if (!viewModel.inputEnabled) {
                 Toast.makeText(this, "Отправка файлов сейчас недоступна", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -197,7 +195,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         val disposable = textSubject
                 .throttleLast(TEXT_TYPING_DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
-                .subscribe({ message: String? -> viewModel!!.sendTypingEvent(message!!) }) { thr: Throwable? -> Log.e(TAG, "typing observe", thr) }
+                .subscribe({ message: String? -> viewModel.sendTypingEvent(message!!) }) { thr: Throwable? -> Log.e(TAG, "typing observe", thr) }
         disposables.add(disposable)
         binding!!.inputView.addTextChangedListener(object : TextWatcherAdapter() {
             override fun afterTextChanged(editable: Editable) {
@@ -206,8 +204,8 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             }
         })
         binding!!.filePreviewDeleteView.setOnClickListener { v: View? ->
-            viewModel!!.selectedFile = null
-            viewModel!!.myViewStateLiveData.setValue(ChatViewState.NORMAL)
+            viewModel.selectedFile = null
+            viewModel.onFilePreviewDeleteViewClick()
         }
 
         // --- Attributes
@@ -223,12 +221,8 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 return@setOnClickListener
             }
             InputUtils.hideKeyboard(this)
-            viewModel!!.sendAttributes(name, phone, email)
+            viewModel.sendAttributes(name, phone, email)
         }
-    }
-
-    private fun subscribeViewModel() {
-        viewModel!!.myViewStateLiveData.observe(this, Observer { viewState: ChatViewState? -> setViewState(viewState) })
     }
 
     private fun setMessages(chatMessages: List<ChatMessage>) {
@@ -334,16 +328,12 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         addFileDialog!!.attach(this)
     }
 
-    private fun setViewState(viewState: ChatViewState?) {
-        if (viewState == null) {
-            return
-        }
-
+    override fun updateViewState(viewState: ChatViewState) {
         // Set default state at first
-        binding!!.inputFieldContainerView.setBackgroundResource(if (viewModel!!.inputEnabled) 0 else R.drawable.bg_input_field_container_disabled)
-        binding!!.inputView.isEnabled = viewModel!!.inputEnabled
-        binding!!.addView.isEnabled = viewModel!!.inputEnabled
-        binding!!.sendView.isEnabled = viewModel!!.inputEnabled
+        binding!!.inputFieldContainerView.setBackgroundResource(if (viewModel.inputEnabled) 0 else R.drawable.bg_input_field_container_disabled)
+        binding!!.inputView.isEnabled = viewModel.inputEnabled
+        binding!!.addView.isEnabled = viewModel.inputEnabled
+        binding!!.sendView.isEnabled = viewModel.inputEnabled
         binding!!.quoteContainerView.visibility = View.GONE
         binding!!.filePreviewView.visibility = View.GONE
         binding!!.filePreviewDeleteView.visibility = View.GONE
@@ -361,10 +351,10 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                 // file preview img
                 binding!!.filePreviewView.visibility = View.VISIBLE
                 binding!!.filePreviewDeleteView.visibility = View.VISIBLE
-                val mime = FileUtils.getMimeType(this, viewModel!!.selectedFile)
+                val mime = FileUtils.getMimeType(this, viewModel.selectedFile)
                 if (mime.contains("image")) {
                     Glide.with(this)
-                            .load(viewModel!!.selectedFile)
+                            .load(viewModel.selectedFile)
                             .placeholder(R.drawable.placeholder)
                             .error(R.drawable.placeholder)
                             .dontAnimate()
@@ -376,14 +366,14 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
                             .dontAnimate()
                             .transform(CenterCrop(), RoundedCorners(resources.getDimensionPixelOffset(R.dimen.chat_upload_preview_corner_radius)))
                             .into(binding!!.filePreviewView)
-                    val filename = FileUtils.getFilename(this, viewModel!!.selectedFile)
+                    val filename = FileUtils.getFilename(this, viewModel.selectedFile)
                     binding!!.fileNameView.visibility = View.VISIBLE
                     binding!!.fileNameView.text = filename
                 }
             }
             ChatViewState.QUOTE -> {
                 binding!!.quoteContainerView.visibility = View.VISIBLE
-                binding!!.quoteView.text = viewModel!!.quoteText
+                binding!!.quoteView.text = viewModel.quoteText
             }
             ChatViewState.ATTRIBUTES -> {
                 InputUtils.hideKeyboard(this)
@@ -406,15 +396,15 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         for (department in departments) {
             val view = View.inflate(this, R.layout.l_department_button, null) as MaterialButton
             view.text = department.name
-            view.setOnClickListener { v: View? -> viewModel!!.selectDepartment(department) }
+            view.setOnClickListener { v: View? -> viewModel.selectDepartment(department) }
             binding!!.departmentsButtonContainerView.addView(view)
         }
     }
 
     private fun onFileSelected(file: Uri) {
-        viewModel!!.selectedFile = file
-        viewModel!!.quoteText = null
-        viewModel!!.myViewStateLiveData.value = ChatViewState.SEND_FILE_PREVIEW
+        viewModel.selectedFile = file
+        viewModel.quoteText = null
+        viewModel.onFileSelected(file)
     }
 
     private fun sendMessage() {
@@ -423,17 +413,17 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
             Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show()
             return
         }
-        if (!viewModel!!.inputEnabled) {
+        if (!viewModel.inputEnabled) {
             Toast.makeText(this, "Отправка сообщений сейчас недоступна", Toast.LENGTH_SHORT).show()
             return
         }
-        val chatMessage = ChatState.instance.createNewTextMessage(text, viewModel!!.quoteText)
+        val chatMessage = ChatState.instance.createNewTextMessage(text, viewModel.quoteText)
         binding!!.inputView.text = null
 
         // wait a bit and scroll to newly created user message
         binding!!.inputView.postDelayed({ binding!!.messagesView.smoothScrollToPosition(adapter.itemCount - 1) }, 200)
-        viewModel!!.quoteText = null
-        viewModel!!.sendMessage(chatMessage)
+        viewModel.quoteText = null
+        viewModel.sendMessage(chatMessage)
     }
 
     /**
