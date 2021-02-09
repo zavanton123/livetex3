@@ -70,18 +70,19 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     private val disposables = CompositeDisposable()
 
     // todo zavanton - remove
-    private var viewModel: ChatViewModel? = null
+    private lateinit var viewModel: ChatViewModel
     private val adapter = MessagesAdapter(Consumer { button: KeyboardEntity.Button? -> viewModel!!.onMessageActionButtonClicked(this, button!!) })
     private var addFileDialog: AddFileDialog? = null
     private val textSubject = PublishSubject.create<String>()
+
     override fun onResume() {
         super.onResume()
-        viewModel!!.onResume()
+        viewModel.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        viewModel!!.onPause()
+        viewModel.onPause()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +91,8 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
 
         // todo zavanton - remove
         viewModel = ChatViewModelFactory(getSharedPreferences("livetex-demo", Context.MODE_PRIVATE)).create(ChatViewModel::class.java)
+        viewModel.addViewState(this)
+
         setupUI()
         subscribeViewModel()
         NetworkManager.getInstance().startObserveNetworkState(this)
@@ -227,7 +230,6 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
     private fun subscribeViewModel() {
         viewModel!!.myViewStateLiveData.observe(this, Observer { viewState: ChatViewState? -> setViewState(viewState) })
         viewModel!!.errorLiveData.observe(this, Observer { msg -> onError(msg) })
-        viewModel!!.connectionStateLiveData.observe(this, Observer { connectionState: ConnectionState -> onConnectionStateUpdate(connectionState) })
         viewModel!!.departmentsLiveData.observe(this, Observer { departments: List<Department> -> showDepartments(departments) })
         viewModel!!.dialogStateUpdateLiveData.observe(this, Observer { dialogState -> updateDialogState(dialogState) })
     }
@@ -447,7 +449,7 @@ class ChatbotActivity : MvpAppCompatActivity(), IChatbotView {
         }
     }
 
-    private fun onConnectionStateUpdate(connectionState: ConnectionState) {
+    override fun onConnectionStateUpdate(connectionState: ConnectionState) {
         when (connectionState) {
             ConnectionState.DISCONNECTED -> {
             }

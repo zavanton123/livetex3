@@ -30,16 +30,25 @@ import java.util.concurrent.TimeUnit
 
 class ChatViewModel(// todo zavanton - replace by room
         private val sp: SharedPreferences) : ViewModel() {
+
+    // todo zavanton - remove
+    lateinit var viewState: IChatbotView
+
     private val disposables = CompositeDisposable()
     private var employeeTypingDisposable: Disposable? = null
 
     private val messagesHandler = LiveTex.getInstance().messagesHandler
     private val networkManager = LiveTex.getInstance().networkManager
-    val connectionStateLiveData = MutableLiveData<ConnectionState>()
+
     val departmentsLiveData = MutableLiveData<List<Department>>()
     val dialogStateUpdateLiveData = MutableLiveData<DialogState?>()
     internal val myViewStateLiveData: MutableLiveData<ChatViewState> = MutableLiveData<ChatViewState>(ChatViewState.NORMAL)
     val errorLiveData = MutableLiveData<String?>()
+
+    fun addViewState(state: IChatbotView) {
+        viewState = state
+    }
+
 
     // File for upload
     var selectedFile: Uri? = null
@@ -66,7 +75,8 @@ class ChatViewModel(// todo zavanton - replace by room
     private fun subscribe() {
         disposables.add(networkManager.connectionState()
                 .observeOn(Schedulers.io())
-                .subscribe({ value: ConnectionState -> connectionStateLiveData.postValue(value) }) { thr: Throwable? -> Log.e(TAG, "connectionState", thr) })
+                .subscribe({ value: ConnectionState -> viewState.onConnectionStateUpdate(value) }) { thr: Throwable? -> Log.e(TAG, "connectionState", thr) })
+
         disposables.add(messagesHandler.historyUpdate()
                 .observeOn(Schedulers.io())
                 .subscribe({ historyEntity: HistoryEntity -> updateHistory(historyEntity) }) { thr: Throwable? -> Log.e(TAG, "history", thr) })
