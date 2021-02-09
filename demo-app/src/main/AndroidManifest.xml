@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.livetex.demoapp">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ru.livetex.demoapp"
+    >
 
     <application
         android:name="ru.livetex.demoapp.App"
@@ -10,11 +12,13 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Livetex">
+        android:theme="@style/Theme.Livetex"
+        >
         <activity
             android:name=".ui.splash.SplashActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Chat">
+            android:theme="@style/Theme.Chat"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,32 +29,31 @@
         <activity
             android:name="ru.livetex.sdkui.chat.ChatActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Chat" />
+            android:theme="@style/Theme.Chat"
+            />
 
         <service
             android:name=".push.FbMessagingService"
-            android:exported="false">
+            android:exported="false"
+            >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <!--
-            Set custom default icon. This is used when no icon is set for incoming notification messages.
-            See README(https://goo.gl/l4GJaQ) for more.
-        -->
+        <!--        todo zavanton - replace by the actual logo -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/logo" />
-        <!--
-            Set color used with incoming notification messages. This is used when no color is set for the incoming
-            notification message. See README(https://goo.gl/6BKBk7) for more.
-        -->
+            android:resource="@drawable/logo"
+            />
+        <!--        todo zavanton - replace by the actual color -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/purple_500" />
+            android:resource="@color/purple_500"
+            />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="@string/notifications_channel_name" />
+            android:value="@string/notifications_channel_name"
+            />
 
     </application>
 

@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 
 android {
@@ -61,4 +63,9 @@ dependencies {
 	annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 	// Firebase services
 	implementation 'com.google.firebase:firebase-messaging:20.3.0'
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
